@@ -109,7 +109,30 @@ Save these securely.
 
 ---
 
-### Step 2) Configure OpenClaw Teams endpoint on host
+### Step 2) Open firewall/NAT for ports 80 and 443
+
+Before cert issuance can work, your domain must be publicly reachable on HTTP/HTTPS.
+
+Required:
+- Router/NAT: forward TCP `80` and `443` to your OpenClaw host
+- Edge firewall/security group: allow inbound TCP `80` and `443`
+- DNS: `teamsbot.example.com` points to your public IP
+
+Optional (if macOS Application Firewall blocks inbound service traffic):
+
+```bash
+# Intel/Homebrew path example
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /usr/local/bin/caddy
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /usr/local/bin/caddy
+```
+
+Validation:
+- `dig +short teamsbot.example.com` returns your public IP
+- From outside your LAN, port checks to `80/443` succeed
+
+---
+
+### Step 3) Configure OpenClaw Teams endpoint on host
 
 Run on your OpenClaw macOS host:
 
@@ -124,7 +147,32 @@ This handles Caddy install/config/restart and TLS.
 
 ---
 
-### Step 3) Configure OpenClaw Teams channel credentials
+### Step 4) Free TLS certificate process (Let's Encrypt via Caddy)
+
+`02-configure-openclaw-endpoint.sh` writes a Caddyfile with your email and domain. On restart, Caddy automatically:
+- performs ACME HTTP challenge over port 80
+- issues a free Let's Encrypt cert
+- serves HTTPS on 443
+- auto-renews certs before expiration
+
+Quick checks:
+
+```bash
+# Validate cert presented by endpoint
+curl -Iv https://teamsbot.example.com/api/messages
+
+# Inspect caddy logs
+brew services info caddy
+```
+
+If certificate issuance fails, 90% of the time it is one of:
+- DNS not pointing to correct public IP
+- port 80/443 not forwarded/open
+- another service already bound to 80/443
+
+---
+
+### Step 5) Configure OpenClaw Teams channel credentials
 
 Set the values from Step 1 in OpenClaw config/env (exact key names depend on your channel config style), then restart OpenClaw.
 
@@ -135,7 +183,7 @@ Minimum required values:
 
 ---
 
-### Step 4) Validate deployment
+### Step 6) Validate deployment
 
 ```powershell
 pwsh ./scripts/03-validate-deployment.ps1 \
