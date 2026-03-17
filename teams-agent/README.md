@@ -56,6 +56,34 @@ This package captures the Teams agent bot setup work and turns Azure portal-heav
   - Checks Azure bot endpoint/channel status
   - Verifies endpoint reachability
 
+- `scripts/deploy-all.ps1`
+  - Runs bootstrap + validation in one command
+  - Writes generated OpenClaw-friendly env file (`.env.generated`)
+
+- `.env.example`
+  - Template for OpenClaw Teams bot env/config values
+
+---
+
+## One-command option (recommended)
+
+```powershell
+pwsh ./scripts/deploy-all.ps1 \
+  -SubscriptionId "<SUBSCRIPTION_ID>" \
+  -TenantId "<TENANT_ID>" \
+  -ResourceGroup "rg-openclaw-teams" \
+  -Location "eastus" \
+  -BotName "openclaw-teams-bot-prod" \
+  -EndpointUrl "https://teamsbot.example.com/api/messages"
+```
+
+This command will:
+1. create/update Azure resources
+2. validate endpoint/channel configuration
+3. write `teams-agent/.env.generated` with required OpenClaw values
+
+> `./.env.generated` contains secrets. Treat it like a credential file.
+
 ---
 
 ## Step-by-step (clean redeploy)
