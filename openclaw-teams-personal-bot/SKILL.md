@@ -15,7 +15,8 @@ Implement one-bot-per-user isolation with a dedicated OpenClaw instance per user
 4. On the user's OpenClaw host, run `scripts/02-configure-openclaw-endpoint.sh` to expose `https://<user-domain>/api/messages` with Caddy/Let's Encrypt.
 5. Apply credentials on that same OpenClaw instance using `references/openclaw-instance-setup.md`.
 6. Restrict Teams app visibility to the intended user/group per `references/teams-policy-lockdown.md`.
-7. Run `scripts/03-validate-personal-bot.ps1` and confirm endpoint/channel isolation.
+7. For multiple users, run `scripts/04-bulk-provision-personal-bots.ps1` with a CSV input.
+8. Run `scripts/03-validate-personal-bot.ps1` and confirm endpoint/channel isolation.
 
 ## Commands
 
@@ -39,6 +40,20 @@ bash scripts/02-configure-openclaw-endpoint.sh \
   --domain john-bot.example.com \
   --email admin@example.com \
   --upstream 127.0.0.1:3978
+```
+
+### Bulk provisioning (CSV)
+
+Use `references/bulk-input-template.csv` as the input format.
+
+```powershell
+pwsh scripts/04-bulk-provision-personal-bots.ps1 \
+  -SubscriptionId "<SUBSCRIPTION_ID>" \
+  -TenantId "<TENANT_ID>" \
+  -ResourceGroup "rg-openclaw-teams-personal" \
+  -Location "eastus" \
+  -CsvPath "./references/bulk-input-template.csv" \
+  -OutputDir "./generated-envs"
 ```
 
 ### Validation

@@ -1,0 +1,4 @@
+alias,botname,domain
+john,oc-john-bot,john-bot.example.com
+alice,oc-alice-bot,alice-bot.example.com
+bob,oc-bob-bot,bob-bot.example.com
